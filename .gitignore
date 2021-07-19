@@ -2,6 +2,20 @@
 setup.rc
 IGNORE/
 
+# Ignore terraform lock files:
+.terraform.lock.hcl
+
+# Ignore vim swap files:
+*.sw?
+
+# Ignore temporary copies of .tf and .md files:
+**/main/*.tf
+**/main/*.md
+**/main/.step
+
+# Ignore key files:
+*.pem
+
 # Ignore bak directories
 **/bak/
 
