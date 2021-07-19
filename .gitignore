@@ -1,3 +1,10 @@
+
+setup.rc
+IGNORE/
+
+# Ignore bak directories
+**/bak/
+
 # Local .terraform directories
 **/.terraform/*
 
