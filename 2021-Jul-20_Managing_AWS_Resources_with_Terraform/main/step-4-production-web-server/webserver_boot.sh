@@ -10,6 +10,7 @@ GRAFTERM_VERSION=0.2.0
 INSTALL_PROMETHEUS_GRAFANA_INSTALL_DIR=/home/ubuntu/prometheus-grafana
 
 START_WEBSERVER() {
+    [ -d simple-webslides ] && rm -rf simple-webslides
     git clone https://github.com/mjbright/simple-webslides
     cd simple-webslides
 
@@ -191,7 +192,8 @@ else
     START_WEBSERVER
     cp -a $0            /tmp/boot_install.sh
     chown ubuntu:ubuntu /tmp/boot_install.sh
-    sudo -i -u ubuntu bash -c "/tmp/boot_install.sh -log $* 2>&1 |
+    chmod +x            /tmp/boot_install.sh
+    time sudo -i -u ubuntu bash -c "/tmp/boot_install.sh -log $* 2>&1" |
         tee /tmp/${SCRIPT}.log
     exit $?
 fi
