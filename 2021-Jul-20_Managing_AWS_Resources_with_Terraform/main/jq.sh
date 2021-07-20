@@ -1,9 +1,27 @@
 #!/bin/bash
 
-STATE_FILE=terraform.tfstate
-[ "${1#terraform.tfstate}" != "$1" ] && { STATE_FILE=$1; shift; }
+#STATE_FILE=terraform.tfstate
+#[ "${1#terraform.tfstate}" != "$1" ] && { STATE_FILE=$1; shift; }
+
+SET_STATE_FILE() {
+    STATE_FILE=terraform.tfstate
+    [ ! -z "$1" ] && STATE_FILE=$1
+
+    STATE_FILE_SIZE=$(wc -c < $STATE_FILE)
+    [ $STATE_FILE_SIZE -lt 160 ] && {
+        ls -al $STATE_FILE
+        echo
+        echo "die: Error: looks like '$STATE_FILE' is empty" >&2
+        exit 1
+    }
+}
 
 [ "$1" = "-x" ]                      && { set -x; shift; }
+
+case "$1" in
+  terraform*) SET_STATE_FILE $*;  shift;;
+esac
+
 case "$1" in
  
   -I) jq '.resources[].instances[]' $STATE_FILE;;
