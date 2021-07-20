@@ -1,11 +1,12 @@
 
-# Step-3
+# Step-4
 
-Let's now add the world's simplest web server
+Let's add some features to ready our server for production
 
-- Add a user_data script to launch a basic http server as a background task
+- Use of the data.aws_ami data source to obtain the latest Ubuntu 20.04 cloud image
 
-- Add a new ingress rule to our security group
-    - allow ingress traffic to the webserver port
+- Set the user_data field to point to a file webserver_boot.sh to initialize
+  - Setup a website
+  - Install Prometheus & Grafana for node monitoring
 
 

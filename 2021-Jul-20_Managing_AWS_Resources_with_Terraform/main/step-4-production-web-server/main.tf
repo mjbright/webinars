@@ -11,6 +11,11 @@ resource "aws_instance" "webserver" {
     Purpose   = "1st simple attempt at a web server"
   }
 
+  # Don't auto-recreate instance if new ami available:
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
   # Better way: reference a file here:
   user_data = "${file("webserver_boot.sh")}"
 }
