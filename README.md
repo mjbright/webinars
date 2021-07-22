@@ -1,2 +1,2 @@
 # webinars
-Materials for webinars
+Materials used in webinars
