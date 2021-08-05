@@ -1,5 +1,5 @@
 
-[ -f local.setup.rc ] && [ . local.setup.rc ]
+[ -f local.setup.rc ] && . local.setup.rc
 
 # __CHECK_PWD: Check that we are in the 'main' sub-dir:
 #
@@ -118,12 +118,19 @@ r() {
     n 1
 }
 
-env | grep ^TF_
+# Show information about tf variables and functions defined here:
+env | grep -q ^TF_ && {
+    echo; echo "TF variables set:"
+    env | grep ^TF_ | sed -e 's/^/    /'
+}
 
 #set | grep BASH_SOURCE
 FNS=$( grep '()' ${BASH_SOURCE[0]} | grep -v ^__ | grep -v FNS= | sed 's/().*//' )
+echo
 echo "Demo functions defined in '${BASH_SOURCE[0]}':" $FNS
 
-DESC_FNS=$( grep -A 1 '()' ${BASH_SOURCE[0]} |  grep -A 1 -v ^__ | grep -v FNS= | grep USAGE: )
-echo "$DESC_FNS"
+#DESC_FNS=$( grep -A 1 '()' ${BASH_SOURCE[0]} |  grep -A 1 -v ^__ | grep -v FNS= | grep USAGE: )
+#DESC_FNS=$( grep ^#USAGE: ${BASH_SOURCE[0]} )
+#echo "$DESC_FNS"
+grep ^#USAGE: ${BASH_SOURCE[0]} | sed -e 's/^/    /'
 
