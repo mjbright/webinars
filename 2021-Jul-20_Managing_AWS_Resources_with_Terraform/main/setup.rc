@@ -1,0 +1,129 @@
+
+[ -f local.setup.rc ] && [ . local.setup.rc ]
+
+# __CHECK_PWD: Check that we are in the 'main' sub-dir:
+#
+__CHECK_PWD() {
+    [ "${PWD%main}" = "$PWD" ] && {
+        echo "PWD=$PWD"
+        echo "error: ... to be run from 'main' sub-dir"
+        return 1
+    }
+}
+
+# __GET_STEP_DIR: identify the directory with step files:
+__GET_STEP_DIR() {
+    STEP_DIR=$( ls -1 -d step-${STEP}-* )
+    [ -z "$STEP_DIR" ] && {
+        echo "error[step-$STEP]: ... failed to find sub-dir matching 'step-${STEP}-* in $PWD"
+        return 1
+    }
+    [ ! -d $STEP_DIR ] && {
+        echo "error[step-$STEP]: ... Bad step dir '$STEP_DIR' in $PWD"
+        return 1
+    }
+
+    #echo "STEP: $STEP"
+    echo "STEP: $STEP_DIR"
+    # Copy step-${STEP-*}/ files:
+}
+
+# __BACKUP_FILES: backup local (main/) files to bak/
+__BACKUP_FILES() {
+    mkdir -p bak
+    for file in *.tf *.md; do [ -f "$file" ] && mv -v "$file" bak/; done
+}
+
+# __RESTORE_STEP: restore files from Step dir to main/
+__RESTORE_STEP() {
+    [ ! -z "$LAST_STEP_DIR" ] && [ -d "$LAST_STEP_DIR" ] &&
+      [ ! -f "$LAST_STEP_DIR/.nodiff" ] &&
+      [ ! -z "$STEP_DIR" ]      && [ -d "$STEP_DIR" ] && 
+      [ "$LAST_STEP_DIR" != "$STEP_DIR" ] && {
+        CMD="diff -rq <$LAST_STEP_DIR> <$STEP_DIR>"
+        echo "-- $CMD"
+        echo "Press <enter>"
+        read DUMMY
+        [ "$DUMMY" = "q" ] && return 0
+        [ "$DUMMY" = "Q" ] && return 0
+        $CMD
+    }
+    cp -av ${STEP_DIR}/*.tf ${STEP_DIR}/*.md ${STEP_DIR}/*.sh . 2>/dev/null
+    LAST_STEP_DIR=$STEP_DIR
+    LAST_STEP=$STEP
+}
+
+#USAGE: n [<step>] - move to next demo step
+#
+# - get current step from .step
+# - increment current step
+# - backup current files
+# - copy in files for appropriate step
+#
+n() {
+    #USAGE: n [<step>] - move to next step
+
+    # Check in */main sub-dir:
+    __CHECK_PWD
+
+    # Get current step, increment it if taken from .step
+    STEP=""
+    [ ! -z "$1" ] && {
+        [ "${1#[0-9]}" = "$1" ] && {
+            echo "error: ... non-numeric argument '$1'"
+            return 1
+        }
+        STEP="$1"
+    }
+
+    [ ! -z "$STEP" ] && echo "$STEP" > .step
+    [ ! -f .step ]  && { echo "1" > .step; }
+    [ -z "$STEP" ]  && {
+        STEP=$(cat .step)
+        let STEP=STEP+1
+        echo "$STEP" > .step
+    }
+
+    # Backup current files:
+    __BACKUP_FILES
+
+    # GET DIR
+    __GET_STEP_DIR
+
+    __RESTORE_STEP
+    [ -f README.md ] && cat README.md
+}
+
+
+#USAGE: cl         - clean/move files from main to bak/
+#
+cl() {
+    #USAGE: cl         - clean/move files from main to bak/
+    __BACKUP_FILES
+}
+
+#USAGE: c          - indicate current step
+#
+c() {
+    STEP=$(cat .step)
+
+    #echo "STEP: $STEP"
+    __GET_STEP_DIR
+}
+
+#USAGE: r          - reset current step to 1
+r() {
+    __CHECK_PWD
+    
+    n 1
+}
+
+env | grep ^TF_
+
+#set | grep BASH_SOURCE
+FNS=$( grep '()' ${BASH_SOURCE[0]} | grep -v ^__ | grep -v FNS= | sed 's/().*//' )
+echo "Demo functions defined in '${BASH_SOURCE[0]}':" $FNS
+
+DESC_FNS=$( grep -A 1 '()' ${BASH_SOURCE[0]} |  grep -A 1 -v ^__ | grep -v FNS= | grep USAGE: )
+echo "$DESC_FNS"
+

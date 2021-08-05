@@ -1,5 +1,5 @@
 
-setup.rc
+local.setup.rc
 IGNORE/
 
 # Ignore terraform lock files:
