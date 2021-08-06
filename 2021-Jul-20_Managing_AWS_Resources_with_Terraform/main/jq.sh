@@ -72,8 +72,6 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-CHECK_STATE_FILE
-
 # DEFAULT ACTION:
 [ $DUMP_TF_INSTANCES -eq 0 ] &&
     [ $SHOW_TF_INSTANCE_SUMMARY -eq 0 ] &&
@@ -81,6 +79,12 @@ CHECK_STATE_FILE
     [ $DUMP_AWS_EC2_INSTANCES -eq 0 ] &&
     [ $SHOW_AWS_EC2_INSTANCE_SUMMARY -eq 0 ] &&
     SHOW_TF_INSTANCE_SUMMARY=1
+
+# If using state file check it's size:
+[ $DUMP_TF_INSTANCES -ne 0 ] ||
+    [ $SHOW_TF_INSTANCE_SUMMARY -ne 0 ] ||
+    [ $SHOW_TF_AWS_INSTANCE_SUMMARY -ne 0 ] &&
+    CHECK_STATE_FILE
 
 [ $DUMP_TF_INSTANCES -ne 0 ] && DUMP_TF_INSTANCES
 [ $SHOW_TF_INSTANCE_SUMMARY -ne 0 ] && SHOW_TF_INSTANCE_SUMMARY
