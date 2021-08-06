@@ -13,7 +13,7 @@ resource "aws_instance" "webserver" {
 
   # Don't auto-recreate instance if new ami available:
   lifecycle {
-    ignore_changes = ["ami"]
+    ignore_changes = [ami]
   }
 
   # Better way: reference a file here:
