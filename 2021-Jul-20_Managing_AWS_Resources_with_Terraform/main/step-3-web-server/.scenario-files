@@ -1,0 +1,6 @@
+main.tf
+NOTES.md
+outputs.tf
+providers.tf
+README.md
+variables.tf

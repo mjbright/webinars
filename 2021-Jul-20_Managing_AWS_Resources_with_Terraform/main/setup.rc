@@ -31,26 +31,50 @@ __GET_STEP_DIR() {
 # __BACKUP_FILES: backup local (main/) files to bak/
 __BACKUP_FILES() {
     mkdir -p bak
-    for file in *.tf *.md; do [ -f "$file" ] && mv -v "$file" bak/; done
+    FILES=$(cat $STEP_DIR/.scenario-files)
+    #for file in *.tf *.md; do [ -f "$file" ] && mv -v "$file" bak/; done
+    for file in $FILES; do [ -f "$file" ] && mv -v "$file" bak/; done
 }
 
 # __RESTORE_STEP: restore files from Step dir to main/
 __RESTORE_STEP() {
-    [ ! -z "$LAST_STEP_DIR" ] && [ -d "$LAST_STEP_DIR" ] &&
+    [ "$STEP" != "1" ] && [ ! -z "$LAST_STEP_DIR" ] && [ -d "$LAST_STEP_DIR" ] &&
       [ ! -f "$LAST_STEP_DIR/.nodiff" ] &&
       [ ! -z "$STEP_DIR" ]      && [ -d "$STEP_DIR" ] && 
       [ "$LAST_STEP_DIR" != "$STEP_DIR" ] && {
-        CMD="diff -rq <$LAST_STEP_DIR> <$STEP_DIR>"
-        echo "-- $CMD"
+        CMD="diff -rq $LAST_STEP_DIR $STEP_DIR"
+        echo; echo "-- $CMD"
         echo "Press <enter>"
         read DUMMY
         [ "$DUMMY" = "q" ] && return 0
         [ "$DUMMY" = "Q" ] && return 0
         $CMD
+
+        echo; echo "View differences?"
+        CMD="diff -r --exclude README.md $LAST_STEP_DIR $STEP_DIR"
+        echo "-- $CMD"
+        echo "Press <enter> to skip, 'y' to view differences"
+        read DUMMY
+        [ "$DUMMY" = "y" ] && $CMD
+        [ "$DUMMY" = "Y" ] && $CMD
+        [ "$DUMMY" = "q" ] && return 0
+        [ "$DUMMY" = "Q" ] && return 0
+        
     }
-    cp -av ${STEP_DIR}/*.tf ${STEP_DIR}/*.md ${STEP_DIR}/*.sh . 2>/dev/null
+    FILES=$(cat $STEP_DIR/.scenario-files)
+    for FILE in $FILES; do
+        cp -av ${STEP_DIR}/${FILE} . 2>/dev/null
+    done
     LAST_STEP_DIR=$STEP_DIR
     LAST_STEP=$STEP
+
+    [ -f README.md ] && {
+        echo; echo "View README.md?"
+        echo "Press <enter> to skip, 'y' to view README.md"
+        read DUMMY
+        [ "$DUMMY" = "y" ] && cat README.md
+        [ "$DUMMY" = "Y" ] && cat README.md
+    }
 }
 
 #USAGE: n [<step>] - move to next demo step
@@ -91,7 +115,6 @@ n() {
     __GET_STEP_DIR
 
     __RESTORE_STEP
-    [ -f README.md ] && cat README.md
 }
 
 
@@ -102,13 +125,14 @@ cl() {
     __BACKUP_FILES
 }
 
-#USAGE: c          - indicate current step
+#USAGE: c          - describe current step
 #
 c() {
     STEP=$(cat .step)
 
     #echo "STEP: $STEP"
     __GET_STEP_DIR
+    cat README.md
 }
 
 #USAGE: r          - reset current step to 1
