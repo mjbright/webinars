@@ -1,12 +1,10 @@
 #!/bin/bash
 
-#STATE_FILE=terraform.tfstate
-#[ "${1#terraform.tfstate}" != "$1" ] && { STATE_FILE=$1; shift; }
+STATE_FILE=terraform.tfstate
 
-SET_STATE_FILE() {
-    STATE_FILE=terraform.tfstate
-    [ ! -z "$1" ] && STATE_FILE=$1
+# Functions: : ------------------------------------------------------------
 
+CHECK_STATE_FILE() {
     STATE_FILE_SIZE=$(wc -c < $STATE_FILE)
     [ $STATE_FILE_SIZE -lt 160 ] && {
         ls -al $STATE_FILE
@@ -16,44 +14,79 @@ SET_STATE_FILE() {
     }
 }
 
-[ "$1" = "-x" ]                      && { set -x; shift; }
+SET_STATE_FILE() {
+    STATE_FILE=terraform.tfstate
+    [ ! -z "$1" ] && STATE_FILE=$1
+    CHECK_STATE_FILE
+}
 
-case "$1" in
-  terraform*) SET_STATE_FILE $*;  shift;;
-esac
+DUMP_TF_INSTANCES() {
+    # Dump all instance (types) in terraform state file:
+    jq '.resources[].instances[]' $STATE_FILE
+}
 
-case "$1" in
- 
-  -I) jq '.resources[].instances[]' $STATE_FILE;;
-  -ai) # TODO: pass type through
+SHOW_TF_INSTANCE_SUMMARY() {
+    # Show summary information for all instance (types) in terraform state file:
     jq -c '.resources[].instances[].attributes | { id, instance_state, public_ip, public_dns }' $STATE_FILE
-    ;;
-  -i)
+}
+
+SHOW_TF_AWS_INSTANCE_SUMMARY() {
+    # Show summary information for only AWS EC2 (VM) instances in terraform state file:
     jq -c '.resources[] | select(.type == "aws_instance") | .instances[].attributes | { id, instance_state, public_ip, public_dns }' $STATE_FILE
-    ;;
+}
 
-  -aws) aws ec2 describe-instances | jq '.';;
+DUMP_AWS_EC2_INSTANCES() {
+    aws ec2 describe-instances | jq '.'
+}
 
-  -ai)
+SHOW_AWS_EC2_INSTANCE_SUMMARY() {
     aws ec2 describe-instances | jq -c '.Reservations[].Instances[] | { State, InstanceId }'
-    #aws ec2 describe-instances | jq -c '.Reservations[].Instances[] | { State.Name, InstanceId }'
-    ;;
+   #aws ec2 describe-instances | jq -c '.Reservations[].Instances[] | { State.Name, InstanceId }'
+}
 
-  "") jq '.resources[].instances[]' $STATE_FILE;;
+# Main: ------------------------------------------------------------
 
+DUMP_TF_INSTANCES=0
+SHOW_TF_INSTANCE_SUMMARY=0
+SHOW_TF_AWS_INSTANCE_SUMMARY=0
+DUMP_AWS_EC2_INSTANCES=0
+SHOW_AWS_EC2_INSTANCE_SUMMARY=0
 
-  *) echo "Bad option '$1'";;
+while [ ! -z "$1" ]; do
+    case $1 in
+       -x) set -x;;
 
+        terraform*) SET_STATE_FILE $1;;
 
-esac
+        # DEFAULT ACTION:
+       -i)  SHOW_TF_AWS_INSTANCE_SUMMARY=1;;
+
+       -I)  DUMP_TF_INSTANCES=1;;
+       -ai) SHOW_TF_INSTANCE_SUMMARY=1;;
+
+       -aws)  DUMP_AWS_EC2_INSTANCES=1;;
+       -awsi) SHOW_AWS_EC2_INSTANCE_SUMMARY=1;;
+
+       *) echo "Bad option '$1'";;
+    esac
+    shift
+done
+
+CHECK_STATE_FILE
+
+# DEFAULT ACTION:
+[ $DUMP_TF_INSTANCES -eq 0 ] &&
+    [ $SHOW_TF_INSTANCE_SUMMARY -eq 0 ] &&
+    [ $SHOW_TF_AWS_INSTANCE_SUMMARY -eq 0 ] &&
+    [ $DUMP_AWS_EC2_INSTANCES -eq 0 ] &&
+    [ $SHOW_AWS_EC2_INSTANCE_SUMMARY -eq 0 ] &&
+    SHOW_TF_INSTANCE_SUMMARY=1
+
+[ $DUMP_TF_INSTANCES -ne 0 ] && DUMP_TF_INSTANCES
+[ $SHOW_TF_INSTANCE_SUMMARY -ne 0 ] && SHOW_TF_INSTANCE_SUMMARY
+[ $SHOW_TF_AWS_INSTANCE_SUMMARY -ne 0 ] && SHOW_TF_AWS_INSTANCE_SUMMARY
+[ $DUMP_AWS_EC2_INSTANCES -ne 0 ] && DUMP_AWS_EC2_INSTANCES
+[ $SHOW_AWS_EC2_INSTANCE_SUMMARY -ne 0 ] && SHOW_AWS_EC2_INSTANCE_SUMMARY
 
 exit $?
 
-jq '.resources[]' $STATE_FILE
- 2226  jq '.resources[].instances[].public_ip' $STATE_FILE
- 2227  jq '.resources[].instances[].attributes.public_ip' $STATE_FILE
- 2228  jq '.resources[].instances[].attributes.public_ip' $STATE_FILE
- 2229  jq '.resources[].instances[].attributes | { public_ip }' $STATE_FILE
- 2230  jq '.resources[].instances[].attributes | { public_ip, public_dns }' $STATE_FILE
- 2232  #jq '.resources[].instances[].attributes' | { state, public_ip, public_dns }' $STATE_FILE
- 2231  jq '.resources[].instances[].attributes | { state, public_ip, public_dns }' $STATE_FILE
