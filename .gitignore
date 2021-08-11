@@ -9,6 +9,10 @@ plan.out
 # Ignore vim swap files:
 *.sw?
 
+# Ignore temporary copies of NOTES and TODO .md files:
+**/TODO.md
+**/NOTES.md
+
 # Ignore temporary copies of .tf and .md files:
 **/main/*.tf
 **/main/*.md
