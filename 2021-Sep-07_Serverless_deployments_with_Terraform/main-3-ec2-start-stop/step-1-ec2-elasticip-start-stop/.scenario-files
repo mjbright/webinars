@@ -1,0 +1,8 @@
+dns.tf
+main.tf
+outputs.tf
+providers.tf
+variables.tf
+NOTES.md
+README.md
+webserver_boot.sh
