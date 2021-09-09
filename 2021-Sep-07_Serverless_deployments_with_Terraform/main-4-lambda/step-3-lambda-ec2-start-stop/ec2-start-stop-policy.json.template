@@ -1,0 +1,27 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "StartStopInstances",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StartInstances",
+                "ec2:StopInstances"
+            ],
+            "Resource": "arn:aws:ec2:*:*:instance/*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:ResourceTag/${tag_key}": "${tag_value}"
+                }
+            }
+        },
+        {
+           "Sid": "ActionsOnlyWorkWithWildcardResources",
+           "Effect": "Allow",
+           "Action": [
+               "ec2:DescribeInstances"
+           ],
+           "Resource": "*"
+        }
+    ]
+}
