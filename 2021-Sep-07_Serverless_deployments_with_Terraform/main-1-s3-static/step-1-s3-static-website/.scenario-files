@@ -1,0 +1,7 @@
+curl_test.sh
+providers.tf
+s3-bucket.tf
+s3-content.tf
+variables.tf
+s3-policy.json
+terraform.tfvars
