@@ -1,0 +1,4 @@
+terraform.tfstate*
+mjb_*.sh
+mjb_*.rc
+IGNORE/
