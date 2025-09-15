@@ -22,6 +22,12 @@ Then
 
 terraform destroy # May take 5 minutes or more
 
+## Checking network resources deleted
+
+If errors are seen during the destroy, verify that the network resources were destroyed:
+- gcloud compute networks list
+- gcloud compute network-endpoint-groups list
+
 # Investigating cluster using gcloud client
 
 In the meantime:
