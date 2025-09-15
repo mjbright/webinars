@@ -2,6 +2,13 @@
 # Derived from
 - https://github.com/murphye/cheap-gke-cluster
 
+# Pre-requisites
+
+To stand up a GKE cluster using Terraform, you will need:
+- the gcloud client
+- the terraform client
+- a suitable (any) Google Cloud Project to use
+
 # Standing up cluster
 
 First login using:
@@ -9,7 +16,13 @@ First login using:
 
 Then
     terraform init
-    terraform apply # May take a looooong time (25+ minutes!)
+    terraform apply # May take a long time, typically 8 minutes (or 25+ minutes!)
+
+# Tearing down cluster
+
+terraform destroy # May take 5 minutes or more
+
+# Investigating cluster using gcloud client
 
 In the meantime:
     gcloud auth login
