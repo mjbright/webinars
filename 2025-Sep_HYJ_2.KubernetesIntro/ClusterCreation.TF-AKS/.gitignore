@@ -1,0 +1,4 @@
+terraform.tfstate*
+mjb_*
+azure.kubeconfig
+IGNORE/
