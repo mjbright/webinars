@@ -10,9 +10,9 @@ Materials used in webinars
 
 - [2023-Jan for ArdanLabs](https://github.com/mjbright/webinars/tree/main/2023-Jan_CreatingCloudResources_with_Terraform): *Creating Cloud Resources with Terraform*
 
-- [2025-Apr for HackYourJob](https://github.com/mjbright/webinars/tree/main/2025-Apr_HYJ_1.KubernetesIntro): *Introduction to Kubernetes: Session 1*
+- [2025-Apr for HackYourJob](https://github.com/mjbright/webinars/tree/main/2025-Apr_HYJ_1.KubernetesIntro): *Introduction to Kubernetes: Session 1 - Kubernetes Concepts*
 
-- [2025-Sep for HackYourJob](https://github.com/mjbright/webinars/tree/main/2025-Sep_HYJ_2.KubernetesIntro): *Introduction to Kubernetes: Session 2*
+- [2025-Sep for HackYourJob](https://github.com/mjbright/webinars/tree/main/2025-Sep_HYJ_2.KubernetesIntro): *Introduction to Kubernetes: Session 2 - Exposing Applications*
 
 
 
